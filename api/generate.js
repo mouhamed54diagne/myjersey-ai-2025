@@ -1,6 +1,12 @@
+import express from "express";
+import cors from "cors";
 import OpenAI from "openai";
 
-export default async function handler(req, res) {
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.post("/api/generate", async (req, res) => {
   try {
     const { club, prenom, numero } = req.body;
 
@@ -8,7 +14,6 @@ export default async function handler(req, res) {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    // Prompt pour générer un maillot réaliste (3 vues)
     const prompt = `
       Create a hyper-realistic football jersey design for the club "${club}".
       Print the name "${prenom}" and the number "${numero}" on the back.
@@ -16,15 +21,14 @@ export default async function handler(req, res) {
       Output ONLY the jersey, no background, no text overlay.
     `;
 
-    // On génère 3 images : face / arrière / zoom
     const images = [];
+
     for (let i = 0; i < 3; i++) {
       const result = await client.images.generate({
-        model: "gpt-image-1", // modèle OpenAI gratuit
+        model: "gpt-image-1",
         prompt: prompt,
         size: "1024x1024",
       });
-
       images.push(result.data[0].url);
     }
 
@@ -37,4 +41,12 @@ export default async function handler(req, res) {
     console.error("Erreur génération:", error);
     return res.status(500).json({ error: "Erreur lors de la génération" });
   }
-}
+});
+
+// Render écoute sur le port fourni
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
+
+export default app;

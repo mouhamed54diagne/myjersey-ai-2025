@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MyJersey AI</title>
+</head>
+<body>
+  <h1>Générateur de Maillots IA</h1>
+
+  <input id="club" placeholder="Club"><br><br>
+  <input id="prenom" placeholder="Prénom"><br><br>
+  <input id="numero" placeholder="Numéro"><br><br>
+
+  <button onclick="generate()">Générer</button>
+
+  <div id="result"></div>
+
+<script>
+async function generate() {
+  const club = document.getElementById("club").value;
+  const prenom = document.getElementById("prenom").value;
+  const numero = document.getElementById("numero").value;
+
+  const res = await fetch("/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ club, prenom, numero })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML =
+    data.images.map(img => `<img src="${img}" width="300">`).join("");
+}
+</script>
+
+</body>
+</html>

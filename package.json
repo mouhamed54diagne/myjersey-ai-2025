@@ -4,7 +4,7 @@
   "type": "module",
   "main": "api/generate.js",
   "scripts": {
-    "start": "node api/generate.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

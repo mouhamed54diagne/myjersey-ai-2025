@@ -1,0 +1,23 @@
+{
+  "name": "myjersey-ai-2025",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mouhamed54diagne/myjersey-ai-2025.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mouhamed54diagne/myjersey-ai-2025/issues"
+  },
+  "homepage": "https://github.com/mouhamed54diagne/myjersey-ai-2025#readme",
+  "description": "",
+  "dependencies": {
+    "openai": "^6.10.0"
+  }
+}

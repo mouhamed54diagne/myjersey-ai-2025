@@ -1,9 +1,10 @@
 {
   "name": "myjersey-ai-2025",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "api/generate.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node api/generate.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,8 @@
   "homepage": "https://github.com/mouhamed54diagne/myjersey-ai-2025#readme",
   "description": "",
   "dependencies": {
-    "openai": "^6.10.0"
+    "cors": "^2.8.5",
+    "express": "^4.19.0",
+    "openai": "^4.0.0"
   }
 }

@@ -29,7 +29,7 @@
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "Génération en cours...";
 
-      const res = await fetch("/api/generate", {
+      const res = await fetch("https://myjersey-ai-2025-6.onrender.com/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ club, prenom, numero })

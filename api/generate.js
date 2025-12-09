@@ -1,5 +1,3 @@
-
-
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
@@ -26,9 +24,15 @@ app.get("/", (req, res) => {
 // API GENERATE
 // ---------------------
 app.post("/api/generate", async (req, res) => {
-  try {
-    console.log("📩 Requête reçue:", req.body);
 
+  // 🌟 TEST 1 — vérifier que la route est bien appelée
+  console.log("🔥 API /api/generate appelée !");
+  console.log("📩 Données reçues du front :", req.body);
+
+  // 🌟 TEST 2 — vérifier que Render lit la clé API
+  console.log("🔑 Clé API Leonardo détectée ?", !!process.env.LEONARDO_API_KEY);
+
+  try {
     const { club, prenom, numero } = req.body;
 
     const prompt = `
@@ -37,6 +41,9 @@ app.post("/api/generate", async (req, res) => {
       Professional sports jersey design.
       High-quality details, clean, no text overlay, no background.
     `;
+
+    // 🌟 TEST 3 — log avant d’appeler Leonardo
+    console.log("🚀 Envoi de la requête à Leonardo...");
 
     const response = await fetch("https://cloud.leonardo.ai/api/rest/v1/generations", {
       method: "POST",
@@ -55,7 +62,9 @@ app.post("/api/generate", async (req, res) => {
     });
 
     const data = await response.json();
-    console.log("📥 Réponse Leonardo:", data);
+
+    // 🌟 TEST 4 — voir ce que Leonardo renvoie
+    console.log("📥 Réponse Leonardo :", data);
 
     if (!data.generations) {
       return res.status(500).json({ error: "Aucune image générée." });
@@ -66,7 +75,8 @@ app.post("/api/generate", async (req, res) => {
     res.status(200).json({ status: "success", images });
 
   } catch (error) {
-    console.error("❌ Erreur API:", error);
+    // 🌟 TEST 5 — log de l’erreur si Leonardo plante
+    console.error("❌ Erreur API :", error);
     res.status(500).json({ error: "Erreur lors de la génération" });
   }
 });

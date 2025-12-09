@@ -1,3 +1,5 @@
+
+
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
@@ -9,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // ---------------------
-// Serveur de fichiers statiques (/public)
+// Fichiers statiques
 // ---------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +27,8 @@ app.get("/", (req, res) => {
 // ---------------------
 app.post("/api/generate", async (req, res) => {
   try {
+    console.log("📩 Requête reçue:", req.body);
+
     const { club, prenom, numero } = req.body;
 
     const prompt = `
@@ -38,7 +42,7 @@ app.post("/api/generate", async (req, res) => {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.LEONARDO_API_KEY}`,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         modelId: "b820ea11-02bf-4652-9fc0-49d3c6e875ab",
@@ -51,32 +55,26 @@ app.post("/api/generate", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("📥 Réponse Leonardo:", data);
 
-    if (!data.generations || data.generations.length === 0) {
-      return res.status(500).json({ error: "Erreur: aucune image générée." });
+    if (!data.generations) {
+      return res.status(500).json({ error: "Aucune image générée." });
     }
 
     const images = data.generations[0].generated_images.map(img => img.url);
 
-    return res.status(200).json({
-      status: "success",
-      images
-    });
+    res.status(200).json({ status: "success", images });
 
   } catch (error) {
-    console.error("Erreur génération:", error);
-    return res.status(500).json({ error: "Erreur lors de la génération" });
+    console.error("❌ Erreur API:", error);
+    res.status(500).json({ error: "Erreur lors de la génération" });
   }
 });
 
 // ---------------------
-// Lancement serveur
+// Lancement du serveur
 // ---------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log("🚀 Serveur en cours d'exécution sur le port", PORT);
 });
-
-export default app;
-
-

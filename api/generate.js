@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import OpenAI from "openai";
+import fetch from "node-fetch";
 
 const app = express();
 app.use(cors());
@@ -10,27 +10,38 @@ app.post("/api/generate", async (req, res) => {
   try {
     const { club, prenom, numero } = req.body;
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
     const prompt = `
-      Create a hyper-realistic football jersey design for the club "${club}".
-      Print the name "${prenom}" and the number "${numero}" on the back.
-      Produce a high-quality 3D render.
-      Output ONLY the jersey, no background, no text overlay.
+      Ultra-realistic 3D football jersey for club "${club}".
+      Back print: name "${prenom}", number "${numero}".
+      Professional sports jersey design.
+      High-quality details, clean, no text overlay, no background.
     `;
 
-    const images = [];
-
-    for (let i = 0; i < 3; i++) {
-      const result = await client.images.generate({
-        model: "gpt-image-1",
+    // Appel API Leonardo
+    const response = await fetch("https://cloud.leonardo.ai/api/rest/v1/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.LEONARDO_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        modelId: "b820ea11-02bf-4652-9fc0-49d3c6e875ab", // Leonardo Vision XL
         prompt: prompt,
-        size: "1024x1024",
-      });
-      images.push(result.data[0].url);
+        width: 1024,
+        height: 1024,
+        sd_version: "v1",
+        num_images: 3 // au lieu d'une seule image
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.generations || data.generations.length === 0) {
+      return res.status(500).json({ error: "Erreur: aucune image générée." });
     }
+
+    // On récupère toutes les images générées
+    const images = data.generations[0].generated_images.map(img => img.url);
 
     return res.status(200).json({
       status: "success",

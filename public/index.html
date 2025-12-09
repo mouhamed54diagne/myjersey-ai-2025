@@ -1,38 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>MyJersey AI</title>
+  <title>MyJersey AI 2025</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button { padding: 10px; margin: 5px; width: 300px; }
+    img { width: 300px; margin: 10px; border-radius: 10px; }
+  </style>
 </head>
 <body>
+
   <h1>Générateur de Maillots IA</h1>
 
-  <input id="club" placeholder="Club"><br><br>
-  <input id="prenom" placeholder="Prénom"><br><br>
-  <input id="numero" placeholder="Numéro"><br><br>
-
-  <button onclick="generate()">Générer</button>
+  <input id="club" placeholder="Nom du club"><br>
+  <input id="prenom" placeholder="Prénom du joueur"><br>
+  <input id="numero" placeholder="Numéro du joueur"><br>
+  <button onclick="generate()">Générer les maillots</button>
 
   <div id="result"></div>
 
-<script>
-async function generate() {
-  const club = document.getElementById("club").value;
-  const prenom = document.getElementById("prenom").value;
-  const numero = document.getElementById("numero").value;
+  <script>
+    async function generate() {
+      const club = document.getElementById("club").value;
+      const prenom = document.getElementById("prenom").value;
+      const numero = document.getElementById("numero").value;
 
-  const res = await fetch("/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ club, prenom, numero })
-  });
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "Génération en cours...";
 
-  const data = await res.json();
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ club, prenom, numero })
+      });
 
-  document.getElementById("result").innerHTML =
-    data.images.map(img => `<img src="${img}" width="300">`).join("");
-}
-</script>
+      const data = await res.json();
+
+      if (!data.images) {
+        resultDiv.innerHTML = "Erreur de génération.";
+        return;
+      }
+
+      resultDiv.innerHTML = data.images
+        .map(url => `<img src="${url}">`)
+        .join("");
+    }
+  </script>
 
 </body>
 </html>

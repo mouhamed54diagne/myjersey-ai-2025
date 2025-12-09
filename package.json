@@ -4,23 +4,11 @@
   "type": "module",
   "main": "api/generate.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node api/generate.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mouhamed54diagne/myjersey-ai-2025.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mouhamed54diagne/myjersey-ai-2025/issues"
-  },
-  "homepage": "https://github.com/mouhamed54diagne/myjersey-ai-2025#readme",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.0",
-    "openai": "^4.0.0"
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
   }
 }

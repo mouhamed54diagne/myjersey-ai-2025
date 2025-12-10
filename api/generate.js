@@ -81,16 +81,14 @@ Name spelling must be EXACT: ${prenom.toUpperCase()}.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        modelId: "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3",
-        prompt: prompt, // Utiliser la variable prompt définie
+        modelId: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix - compatible avec alchemy
+        prompt: prompt,
         negative_prompt:
           "blurry, low quality, distorted text, misspelled, wrong colors, watermark, person wearing jersey, mannequin",
         width: 1024,
         height: 1024,
-        num_images: 2, // 2 designs pour avoir front/back
+        num_images: 2,
         alchemy: true,
-        photoReal: true,
-        photoRealVersion: "v2",
         presetStyle: "CINEMATIC",
       }),
     })

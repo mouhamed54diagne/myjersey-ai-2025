@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 // FONCTION : Attendre que les images soient prêtes
 // ---------------------
 async function pollGenerationStatus(generationId, apiKey) {
-  const maxAttempts = 30; // 30 tentatives max (30 secondes)
+  const maxAttempts = 20; // 20 tentatives max (20 secondes) - optimisé pour Render
   
   for (let i = 0; i < maxAttempts; i++) {
     const response = await fetch(
@@ -60,16 +60,30 @@ app.post("/api/generate", async (req, res) => {
     const apiKey = process.env.LEONARDO_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "LEONARDO_API_KEY manquante" });
+      console.error("❌ LEONARDO_API_KEY manquante !");
+      return res.status(500).json({ 
+        error: "Clé API non configurée. Ajoute LEONARDO_API_KEY dans les variables d'environnement." 
+      });
     }
 
-    // Prompt optimisé
-    const prompt = `
-      Ultra-realistic 3D football jersey for ${club}.
-      Back view showing name "${prenom}" and number "${numero}".
-      Professional sports photography, studio lighting, 4K quality.
-      Clean design, no watermarks.
-    `;
+    console.log("✅ Clé API trouvée:", apiKey.substring(0, 10) + "...");
+
+    // Prompt optimisé pour JUSTE LE MAILLOT (pas de joueur)
+    const promptAvant = `
+Professional football jersey front view on flat surface, ${club} official colors.
+Player name: ${prenom.toUpperCase()} and number: ${numero} on the BACK (not visible in front view).
+Empty jersey laying flat, no person wearing it, no mannequin.
+Studio photography, clean white background, high quality product shot.
+Authentic ${club} kit design with correct team colors and sponsor logos.
+    `.trim();
+
+    const promptArriere = `
+Professional football jersey back view on flat surface, ${club} official colors.
+Player name: ${prenom.toUpperCase()} clearly printed above number: ${numero}.
+Empty jersey laying flat, no person wearing it, no mannequin.
+Studio photography, clean white background, high quality product shot.
+Name and number clearly visible and correctly spelled: ${prenom.toUpperCase()}.
+    `.trim();
 
     // ÉTAPE 1 : Lancer la génération
     console.log("🎨 Lancement de la génération...");
@@ -82,12 +96,14 @@ app.post("/api/generate", async (req, res) => {
       body: JSON.stringify({
         modelId: "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3", // Leonardo Phoenix
         prompt: prompt,
+        negative_prompt: "blurry, low quality, distorted text, misspelled, wrong colors, watermark, logo overlay, multiple jerseys, front view",
         width: 1024,
         height: 1024,
-        num_images: 3,
+        num_images: 4, // Générer 4 images pour avoir plus de choix
         alchemy: true,
-        photoReal: false,
-        presetStyle: "DYNAMIC"
+        photoReal: true, // Active le mode photoréaliste
+        photoRealVersion: "v2",
+        presetStyle: "CINEMATIC"
       })
     });
 

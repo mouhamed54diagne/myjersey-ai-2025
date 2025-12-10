@@ -1,50 +1,398 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>MyJersey AI 2025</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyJersey AI 2025 - Créateur de Maillots</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    input, button { padding: 10px; margin: 5px; width: 300px; }
-    img { width: 300px; margin: 10px; border-radius: 10px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #0f62fe 0%, #00a1ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 16px;
+      margin: 10px 0;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    input {
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    button {
+      border: none;
+      background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(15, 98, 254, 0.6);
+    }
+
+    #result {
+      max-width: 1400px;
+      margin: 40px auto;
+    }
+
+    .designs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 40px;
+      margin-top: 30px;
+    }
+
+    .design-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .viewer-container {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .viewer-container:active {
+      cursor: grabbing;
+    }
+
+    .jersey-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity 0.3s ease;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+
+    .control-btn {
+      padding: 12px 24px;
+      background: rgba(15, 98, 254, 0.2);
+      border: 1px solid #0f62fe;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .control-btn:hover {
+      background: rgba(15, 98, 254, 0.4);
+    }
+
+    .control-btn.active {
+      background: #0f62fe;
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .zoom-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(15, 98, 254, 0.2);
+      border: 1px solid #0f62fe;
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .zoom-level {
+      color: #0f62fe;
+      font-weight: bold;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .design-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0f62fe;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      font-size: 24px;
+      color: #0f62fe;
+    }
+
+    @media (max-width: 768px) {
+      .designs-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .viewer-container {
+        height: 400px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Générateur de Maillots IA</h1>
+  <h1>⚽ Générateur de Maillots AI</h1>
 
-  <input id="club" placeholder="Nom du club"><br>
-  <input id="prenom" placeholder="Prénom du joueur"><br>
-  <input id="numero" placeholder="Numéro du joueur"><br>
-  <button onclick="generate()">Générer les maillots</button>
+  <form id="form">
+    <input type="text" id="club" placeholder="Nom du club (ex: Real Madrid)" required>
+    <input type="text" id="prenom" placeholder="Prénom du joueur (ex: BENZEMA)" required>
+    <input type="number" id="numero" placeholder="Numéro (ex: 9)" required min="1" max="99">
+    <button type="submit">🎨 Créer mon maillot</button>
+  </form>
 
   <div id="result"></div>
 
   <script>
-    async function generate() {
-      const club = document.getElementById("club").value;
-      const prenom = document.getElementById("prenom").value;
-      const numero = document.getElementById("numero").value;
-
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "Génération en cours...";
-
-      const res = await fetch("https://myjersey-ai-2025-6.onrender.com/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ club, prenom, numero })
-      });
-
-      const data = await res.json();
-
-      if (!data.images) {
-        resultDiv.innerHTML = "Erreur de génération.";
-        return;
+    class JerseyViewer {
+      constructor(container, images) {
+        this.container = container;
+        this.images = images;
+        this.currentView = 'avant';
+        this.zoom = 1;
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.translateX = 0;
+        this.translateY = 0;
+        
+        this.init();
       }
 
-      resultDiv.innerHTML = data.images
-        .map(url => `<img src="${url}">`)
-        .join("");
+      init() {
+        // Créer les images
+        this.imgAvant = document.createElement('img');
+        this.imgAvant.src = this.images.avant;
+        this.imgAvant.className = 'jersey-image';
+        this.imgAvant.style.opacity = '1';
+        
+        this.imgArriere = document.createElement('img');
+        this.imgArriere.src = this.images.arriere;
+        this.imgArriere.className = 'jersey-image';
+        this.imgArriere.style.opacity = '0';
+        
+        this.container.appendChild(this.imgAvant);
+        this.container.appendChild(this.imgArriere);
+
+        // Événements drag
+        this.container.addEventListener('mousedown', (e) => this.startDrag(e));
+        this.container.addEventListener('mousemove', (e) => this.drag(e));
+        this.container.addEventListener('mouseup', () => this.endDrag());
+        this.container.addEventListener('mouseleave', () => this.endDrag());
+
+        // Touch events
+        this.container.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]));
+        this.container.addEventListener('touchmove', (e) => this.drag(e.touches[0]));
+        this.container.addEventListener('touchend', () => this.endDrag());
+      }
+
+      switchView(view) {
+        this.currentView = view;
+        if (view === 'avant') {
+          this.imgAvant.style.opacity = '1';
+          this.imgArriere.style.opacity = '0';
+        } else {
+          this.imgAvant.style.opacity = '0';
+          this.imgArriere.style.opacity = '1';
+        }
+      }
+
+      setZoom(newZoom) {
+        this.zoom = Math.max(1, Math.min(3, newZoom));
+        this.updateTransform();
+      }
+
+      startDrag(e) {
+        if (this.zoom <= 1) return;
+        this.isDragging = true;
+        this.startX = e.clientX - this.translateX;
+        this.startY = e.clientY - this.translateY;
+      }
+
+      drag(e) {
+        if (!this.isDragging) return;
+        this.translateX = e.clientX - this.startX;
+        this.translateY = e.clientY - this.startY;
+        this.updateTransform();
+      }
+
+      endDrag() {
+        this.isDragging = false;
+      }
+
+      updateTransform() {
+        const transform = `scale(${this.zoom}) translate(${this.translateX / this.zoom}px, ${this.translateY / this.zoom}px)`;
+        this.imgAvant.style.transform = transform;
+        this.imgArriere.style.transform = transform;
+      }
+    }
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const club = document.getElementById("club").value;
+      const prenom = document.getElementById("prenom").value.toUpperCase();
+      const numero = document.getElementById("numero").value;
+
+      const result = document.getElementById("result");
+      result.innerHTML = `
+        <div class="loading">
+          <div style="font-size: 48px; margin-bottom: 20px;">⚽</div>
+          <div>Génération de vos maillots personnalisés...</div>
+          <div style="font-size: 14px; color: #888; margin-top: 10px;">
+            ${club} • ${prenom} #${numero}
+          </div>
+          <div style="margin-top: 20px; color: #666;">
+            ⏱️ Environ 15-25 secondes
+          </div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ club, prenom, numero })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          result.innerHTML = `
+            <div style="padding: 30px; background: #ff4444; border-radius: 10px; color: white; text-align: center;">
+              <h3>❌ Erreur</h3>
+              <p>${data.error}</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Afficher les 2 designs
+        result.innerHTML = `
+          <h2 style="text-align: center; color: #0f62fe; margin-bottom: 30px;">
+            ✅ 2 Designs générés pour ${prenom} #${numero}
+          </h2>
+          <div class="designs-grid">
+            ${data.designs.map((design, index) => `
+              <div class="design-card">
+                <div class="design-title">Design ${index + 1}</div>
+                <div class="viewer-container" id="viewer-${design.id}"></div>
+                <div class="controls">
+                  <button class="control-btn active" onclick="switchView(${design.id}, 'avant', this)">
+                    👕 Vue Avant
+                  </button>
+                  <button class="control-btn" onclick="switchView(${design.id}, 'arriere', this)">
+                    🔢 Vue Arrière
+                  </button>
+                </div>
+                <div class="zoom-controls">
+                  <button class="zoom-btn" onclick="zoomOut(${design.id})">−</button>
+                  <span class="zoom-level" id="zoom-${design.id}">100%</span>
+                  <button class="zoom-btn" onclick="zoomIn(${design.id})">+</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        // Initialiser les viewers
+        window.viewers = {};
+        data.designs.forEach(design => {
+          const container = document.getElementById(`viewer-${design.id}`);
+          window.viewers[design.id] = new JerseyViewer(container, design);
+        });
+
+      } catch (error) {
+        result.innerHTML = `
+          <div style="padding: 30px; background: #ff4444; border-radius: 10px; color: white; text-align: center;">
+            <h3>❌ Erreur réseau</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    });
+
+    function switchView(designId, view, btn) {
+      window.viewers[designId].switchView(view);
+      
+      // Update button states
+      const buttons = btn.parentElement.querySelectorAll('.control-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function zoomIn(designId) {
+      const viewer = window.viewers[designId];
+      viewer.setZoom(viewer.zoom + 0.5);
+      document.getElementById(`zoom-${designId}`).textContent = Math.round(viewer.zoom * 100) + '%';
+    }
+
+    function zoomOut(designId) {
+      const viewer = window.viewers[designId];
+      viewer.setZoom(viewer.zoom - 0.5);
+      document.getElementById(`zoom-${designId}`).textContent = Math.round(viewer.zoom * 100) + '%';
     }
   </script>
 

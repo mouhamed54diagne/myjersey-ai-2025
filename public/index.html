@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyJersey AI 2025 - Créateur de Maillots</title>
+  <title>MyJersey AI 2025</title>
   <style>
     * {
       margin: 0;
@@ -63,6 +63,7 @@
       font-weight: bold;
       cursor: pointer;
       margin-top: 20px;
+      transition: all 0.3s;
     }
 
     button:hover {
@@ -77,101 +78,76 @@
 
     .designs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+      gap: 30px;
       margin-top: 30px;
     }
 
     .design-card {
       background: rgba(255, 255, 255, 0.05);
-      padding: 25px;
+      padding: 20px;
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .viewer-container {
+    .design-title {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #0f62fe;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .jersey-viewer {
       position: relative;
       width: 100%;
-      height: 500px;
-      background: #000;
-      border-radius: 12px;
       overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+      cursor: zoom-in;
+    }
+
+    .jersey-viewer.zoomed {
+      cursor: zoom-out;
+    }
+
+    .jersey-viewer img {
+      width: 100%;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .jersey-viewer.zoomed img {
+      transform: scale(2);
       cursor: grab;
     }
 
-    .viewer-container:active {
+    .jersey-viewer.zoomed img:active {
       cursor: grabbing;
-    }
-
-    .jersey-image {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      transition: opacity 0.3s ease;
     }
 
     .controls {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
-      justify-content: center;
-    }
-
-    .control-btn {
-      padding: 12px 24px;
-      background: rgba(15, 98, 254, 0.2);
-      border: 1px solid #0f62fe;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-    }
-
-    .control-btn:hover {
-      background: rgba(15, 98, 254, 0.4);
-    }
-
-    .control-btn.active {
-      background: #0f62fe;
-    }
-
-    .zoom-controls {
-      display: flex;
-      gap: 10px;
-      align-items: center;
       margin-top: 15px;
       justify-content: center;
     }
 
-    .zoom-btn {
-      width: 40px;
-      height: 40px;
-      background: rgba(15, 98, 254, 0.2);
-      border: 1px solid #0f62fe;
+    .download-btn {
+      padding: 12px 24px;
+      background: #0f62fe;
+      border: none;
       color: white;
-      border-radius: 50%;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
     }
 
-    .zoom-level {
-      color: #0f62fe;
-      font-weight: bold;
-      min-width: 60px;
-      text-align: center;
-    }
-
-    .design-title {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #0f62fe;
-      font-size: 20px;
-      font-weight: bold;
+    .download-btn:hover {
+      background: #0043ce;
+      transform: translateY(-2px);
     }
 
     .loading {
@@ -181,13 +157,20 @@
       color: #0f62fe;
     }
 
+    .instruction {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
     @media (max-width: 768px) {
-      .designs-grid {
-        grid-template-columns: 1fr;
+      h1 {
+        font-size: 32px;
       }
       
-      .viewer-container {
-        height: 400px;
+      .designs-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -200,92 +183,44 @@
     <input type="text" id="club" placeholder="Nom du club (ex: Real Madrid)" required>
     <input type="text" id="prenom" placeholder="Prénom du joueur (ex: BENZEMA)" required>
     <input type="number" id="numero" placeholder="Numéro (ex: 9)" required min="1" max="99">
-    <button type="submit">🎨 Créer mon maillot</button>
+    <button type="submit">🎨 Créer mes maillots</button>
   </form>
 
   <div id="result"></div>
 
   <script>
-    class JerseyViewer {
-      constructor(container, images) {
+    class ZoomableImage {
+      constructor(container, img) {
         this.container = container;
-        this.images = images;
-        this.currentView = 'avant';
-        this.zoom = 1;
-        this.isDragging = false;
-        this.startX = 0;
-        this.startY = 0;
-        this.translateX = 0;
-        this.translateY = 0;
+        this.img = img;
+        this.isZoomed = false;
+        this.scale = 1;
         
-        this.init();
+        this.container.addEventListener('click', (e) => {
+          if (!this.isZoomed) {
+            this.zoomIn(e);
+          } else {
+            this.zoomOut();
+          }
+        });
       }
 
-      init() {
-        // Créer les images
-        this.imgAvant = document.createElement('img');
-        this.imgAvant.src = this.images.avant;
-        this.imgAvant.className = 'jersey-image';
-        this.imgAvant.style.opacity = '1';
+      zoomIn(e) {
+        this.isZoomed = true;
+        this.container.classList.add('zoomed');
         
-        this.imgArriere = document.createElement('img');
-        this.imgArriere.src = this.images.arriere;
-        this.imgArriere.className = 'jersey-image';
-        this.imgArriere.style.opacity = '0';
+        // Position du clic pour centrer le zoom
+        const rect = this.container.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
         
-        this.container.appendChild(this.imgAvant);
-        this.container.appendChild(this.imgArriere);
-
-        // Événements drag
-        this.container.addEventListener('mousedown', (e) => this.startDrag(e));
-        this.container.addEventListener('mousemove', (e) => this.drag(e));
-        this.container.addEventListener('mouseup', () => this.endDrag());
-        this.container.addEventListener('mouseleave', () => this.endDrag());
-
-        // Touch events
-        this.container.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]));
-        this.container.addEventListener('touchmove', (e) => this.drag(e.touches[0]));
-        this.container.addEventListener('touchend', () => this.endDrag());
+        this.img.style.transformOrigin = `${x}% ${y}%`;
       }
 
-      switchView(view) {
-        this.currentView = view;
-        if (view === 'avant') {
-          this.imgAvant.style.opacity = '1';
-          this.imgArriere.style.opacity = '0';
-        } else {
-          this.imgAvant.style.opacity = '0';
-          this.imgArriere.style.opacity = '1';
-        }
-      }
-
-      setZoom(newZoom) {
-        this.zoom = Math.max(1, Math.min(3, newZoom));
-        this.updateTransform();
-      }
-
-      startDrag(e) {
-        if (this.zoom <= 1) return;
-        this.isDragging = true;
-        this.startX = e.clientX - this.translateX;
-        this.startY = e.clientY - this.translateY;
-      }
-
-      drag(e) {
-        if (!this.isDragging) return;
-        this.translateX = e.clientX - this.startX;
-        this.translateY = e.clientY - this.startY;
-        this.updateTransform();
-      }
-
-      endDrag() {
-        this.isDragging = false;
-      }
-
-      updateTransform() {
-        const transform = `scale(${this.zoom}) translate(${this.translateX / this.zoom}px, ${this.translateY / this.zoom}px)`;
-        this.imgAvant.style.transform = transform;
-        this.imgArriere.style.transform = transform;
+      zoomOut() {
+        this.isZoomed = false;
+        this.container.classList.remove('zoomed');
+        this.img.style.transform = 'scale(1)';
       }
     }
 
@@ -300,12 +235,12 @@
       result.innerHTML = `
         <div class="loading">
           <div style="font-size: 48px; margin-bottom: 20px;">⚽</div>
-          <div>Génération de vos maillots personnalisés...</div>
+          <div>Génération de vos maillots...</div>
           <div style="font-size: 14px; color: #888; margin-top: 10px;">
             ${club} • ${prenom} #${numero}
           </div>
           <div style="margin-top: 20px; color: #666;">
-            ⏱️ Environ 15-25 secondes
+            ⏱️ Environ 10-20 secondes
           </div>
         </div>
       `;
@@ -324,76 +259,52 @@
             <div style="padding: 30px; background: #ff4444; border-radius: 10px; color: white; text-align: center;">
               <h3>❌ Erreur</h3>
               <p>${data.error}</p>
+              ${data.details ? `<small style="opacity: 0.8; display: block; margin-top: 10px;">${data.details}</small>` : ''}
             </div>
           `;
           return;
         }
 
-        // Afficher les 2 designs
+        // Afficher les designs
         result.innerHTML = `
-          <h2 style="text-align: center; color: #0f62fe; margin-bottom: 30px;">
-            ✅ 2 Designs générés pour ${prenom} #${numero}
+          <h2 style="text-align: center; color: #0f62fe; margin-bottom: 10px;">
+            ✅ ${data.designs.length} Design${data.designs.length > 1 ? 's' : ''} généré${data.designs.length > 1 ? 's' : ''} !
           </h2>
+          <p class="instruction">💡 Cliquez sur une image pour zoomer</p>
           <div class="designs-grid">
             ${data.designs.map((design, index) => `
               <div class="design-card">
                 <div class="design-title">Design ${index + 1}</div>
-                <div class="viewer-container" id="viewer-${design.id}"></div>
-                <div class="controls">
-                  <button class="control-btn active" onclick="switchView(${design.id}, 'avant', this)">
-                    👕 Vue Avant
-                  </button>
-                  <button class="control-btn" onclick="switchView(${design.id}, 'arriere', this)">
-                    🔢 Vue Arrière
-                  </button>
+                <div class="jersey-viewer" id="viewer-${design.id}">
+                  <img src="${design.image}" alt="Maillot ${prenom} #${numero}">
                 </div>
-                <div class="zoom-controls">
-                  <button class="zoom-btn" onclick="zoomOut(${design.id})">−</button>
-                  <span class="zoom-level" id="zoom-${design.id}">100%</span>
-                  <button class="zoom-btn" onclick="zoomIn(${design.id})">+</button>
+                <div class="controls">
+                  <a href="${design.image}" download="maillot-${prenom}-${numero}-${index + 1}.jpg" class="download-btn">
+                    📥 Télécharger
+                  </a>
                 </div>
               </div>
             `).join('')}
           </div>
         `;
 
-        // Initialiser les viewers
-        window.viewers = {};
+        // Initialiser le zoom sur chaque image
         data.designs.forEach(design => {
           const container = document.getElementById(`viewer-${design.id}`);
-          window.viewers[design.id] = new JerseyViewer(container, design);
+          const img = container.querySelector('img');
+          new ZoomableImage(container, img);
         });
 
       } catch (error) {
         result.innerHTML = `
           <div style="padding: 30px; background: #ff4444; border-radius: 10px; color: white; text-align: center;">
             <h3>❌ Erreur réseau</h3>
-            <p>${error.message}</p>
+            <p>Impossible de contacter le serveur</p>
+            <small>${error.message}</small>
           </div>
         `;
       }
     });
-
-    function switchView(designId, view, btn) {
-      window.viewers[designId].switchView(view);
-      
-      // Update button states
-      const buttons = btn.parentElement.querySelectorAll('.control-btn');
-      buttons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-
-    function zoomIn(designId) {
-      const viewer = window.viewers[designId];
-      viewer.setZoom(viewer.zoom + 0.5);
-      document.getElementById(`zoom-${designId}`).textContent = Math.round(viewer.zoom * 100) + '%';
-    }
-
-    function zoomOut(designId) {
-      const viewer = window.viewers[designId];
-      viewer.setZoom(viewer.zoom - 0.5);
-      document.getElementById(`zoom-${designId}`).textContent = Math.round(viewer.zoom * 100) + '%';
-    }
   </script>
 
 </body>

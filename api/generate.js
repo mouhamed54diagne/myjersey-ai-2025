@@ -64,12 +64,15 @@ app.post("/api/generate", async (req, res) => {
     console.log("✅ Clé API trouvée:", apiKey.substring(0, 10) + "...")
 
     const prompt = `
-Professional football jersey design for ${club}, showing both front and back views.
-Front view: Clean jersey with ${club} official colors and sponsor logos.
-Back view: Player name "${prenom.toUpperCase()}" and number "${numero}" clearly visible.
-Empty jerseys laying flat on white background, no person wearing them.
-Studio photography, high quality product shot, authentic ${club} kit design.
-Name spelling must be EXACT: ${prenom.toUpperCase()}.
+Ultra-realistic professional football jersey for ${club}, premium quality product photography.
+Front view and back view side by side.
+Front: Official ${club} team colors, authentic sponsor logos, club crest, modern geometric patterns, sleek design with subtle textures and gradients.
+Back: Bold player name "${prenom.toUpperCase()}" in official team font, large number "${numero}" with premium gold or silver outline effects.
+Empty jerseys displayed on premium hangers against pure white studio background with soft professional lighting.
+8K resolution, magazine-quality photography, Nike or Adidas level craftsmanship, vibrant colors, sharp details, photo-realistic fabric texture with visible weave patterns.
+Professional sports merchandise catalog style, championship edition aesthetics.
+Name must be spelled EXACTLY as: ${prenom.toUpperCase()}
+Number must be: ${numero}
     `.trim()
 
     // ÉTAPE 1 : Lancer la génération
@@ -81,15 +84,15 @@ Name spelling must be EXACT: ${prenom.toUpperCase()}.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        modelId: "6b645e3a-d64f-4341-a6d8-7a3690fbf042", // Leonardo Phoenix - compatible avec alchemy
+        modelId: "6b645e3a-d64f-4341-a6d8-7a3690fbf042",
         prompt: prompt,
         negative_prompt:
-          "blurry, low quality, distorted text, misspelled, wrong colors, watermark, person wearing jersey, mannequin",
+          "blurry, low quality, distorted text, misspelled names, wrong numbers, incorrect colors, watermark, signature, person wearing jersey, mannequin, model, pixelated, amateur, cheap looking, wrinkled, dirty, damaged, cartoon, illustration, 3d render",
         width: 1024,
         height: 1024,
         num_images: 2,
         alchemy: true,
-        presetStyle: "CINEMATIC",
+        presetStyle: "PHOTOGRAPHY",
       }),
     })
 

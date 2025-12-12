@@ -64,15 +64,15 @@ app.post("/api/generate", async (req, res) => {
     console.log("✅ Clé API trouvée:", apiKey.substring(0, 10) + "...")
 
     const prompt = `
-Ultra-realistic professional football jersey for ${club}, premium quality product photography.
-Front view and back view side by side.
-Front: Official ${club} team colors, authentic sponsor logos, club crest, modern geometric patterns, sleek design with subtle textures and gradients.
-Back: Bold player name "${prenom.toUpperCase()}" in official team font, large number "${numero}" with premium gold or silver outline effects.
-Empty jerseys displayed on premium hangers against pure white studio background with soft professional lighting.
-8K resolution, magazine-quality photography, Nike or Adidas level craftsmanship, vibrant colors, sharp details, photo-realistic fabric texture with visible weave patterns.
-Professional sports merchandise catalog style, championship edition aesthetics.
-Name must be spelled EXACTLY as: ${prenom.toUpperCase()}
-Number must be: ${numero}
+Hyper-realistic professional ${club} football jersey floating in pure white void, no background, no hanger, no lighting equipment, just the jersey alone.
+Premium championship edition design with revolutionary patterns and textures that surpass Adidas quality.
+Front view: Official ${club} colors with innovative geometric patterns, holographic details, premium embossed textures, ultra-modern cut, club crest with metallic finish, avant-garde design elements.
+Back view: Bold "${prenom.toUpperCase()}" in futuristic 3D embossed typography, massive number "${numero}" with chrome or rose gold gradient effects, sharp laser-cut edges.
+Jersey appears suspended in space against pure white infinity, no shadows, no hangers, no bars, no studio equipment visible.
+12K ultra-high resolution, photo-realistic fabric with micro-details, visible thread texture, championship-level craftsmanship exceeding Nike and Adidas standards.
+Cutting-edge sportswear design, museum-quality product shot, award-winning sports photography.
+Name MUST be: ${prenom.toUpperCase()}
+Number MUST be: ${numero}
     `.trim()
 
     // ÉTAPE 1 : Lancer la génération
@@ -87,7 +87,7 @@ Number must be: ${numero}
         modelId: "6b645e3a-d64f-4341-a6d8-7a3690fbf042",
         prompt: prompt,
         negative_prompt:
-          "blurry, low quality, distorted text, misspelled names, wrong numbers, incorrect colors, watermark, signature, person wearing jersey, mannequin, model, pixelated, amateur, cheap looking, wrinkled, dirty, damaged, cartoon, illustration, 3d render",
+          "hanger, bar, hook, studio lights, lighting equipment, shadows, mannequin, person, model, stand, rack, background patterns, watermark, blurry, low quality, distorted text, misspelled names, wrong numbers, cartoon, 3d render, illustration, wrinkled, dirty, damaged, amateur, cheap, pixelated",
         width: 1024,
         height: 1024,
         num_images: 2,

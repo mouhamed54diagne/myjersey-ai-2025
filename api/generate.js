@@ -90,7 +90,7 @@ Number MUST be: ${numero}
           "hanger, bar, hook, studio lights, lighting equipment, shadows, mannequin, person, model, stand, rack, background patterns, watermark, blurry, low quality, distorted text, misspelled names, wrong numbers, cartoon, 3d render, illustration, wrinkled, dirty, damaged, amateur, cheap, pixelated",
         width: 1024,
         height: 1024,
-        num_images: 2,
+        num_images: 1,
         alchemy: true,
         presetStyle: "PHOTOGRAPHY",
       }),
